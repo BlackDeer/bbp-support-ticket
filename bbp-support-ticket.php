@@ -60,6 +60,7 @@ add_action( 'bbp_new_topic', 'bbp_save_custom_fields', 10, 1 ); //
 add_action( 'bbp_edit_topic', 'bbp_save_custom_fields', 10, 1 );
 
 //display custom fields content
+//is our forum does not work, need to match parent id to our forum
 function bbp_display_custom_fields(){
 	if( is_our_forum() == 'true' ){
 		$topic_id = bbp_get_topic_id();
