@@ -1,2 +1,2 @@
-# bpp-support-ticket
-support ticket plugin based on bbp
+# bbp-support-ticket
+WordPress support ticket plugin based on bbpress

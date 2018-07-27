@@ -15,11 +15,12 @@
  *	Helpful Links
  *	https://codex.bbpress.org/layout-and-functionality-examples-you-can-use/
  *	https://wp-dreams.com/articles/2013/06/adding-custom-fields-bbpress-topic-form/
- *	
- *	
- *	
- *	
+ *	https://codex.bbpress.org/bbpress-conditional-tags/
  *
+ *	To Do
+ *	-Set Topic Tags
+ *	-Custom Topic Type
+ *	-Custom Topic Status
 */
 
 
@@ -29,15 +30,24 @@
 */
 
 //if it is support ticket forum
-
+function is_our_forum(){
+	global $post;
+	$our_forum = 'support-tickets';
+	if( $post->post_type == 'forum' && $post->post_name == $our_forum ){
+		return 'true';
+	}else{
+		return 'false';
+	}
+}
 
 //display custom field form
 function bbp_custom_fields() {
-	$value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_field1', true );
-	echo '<label for="bbp_extra_field1">Extra Field 1</label><br>';
-	echo '<input type="text" name="bbp_extra_field1" value="' . $value . '">';
+	if( is_our_forum() == 'true' ){
+		$value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_field1', true );
+		echo '<label for="bbp_extra_field1">Extra Field 1</label><br>';
+		echo '<input type="text" name="bbp_extra_field1" value="' . $value . '">';
+	}
 }
-
 add_action( 'bbp_theme_before_topic_form_content', 'bbp_custom_fields' );
 
 //process and save
@@ -51,9 +61,11 @@ add_action( 'bbp_edit_topic', 'bbp_save_custom_fields', 10, 1 );
 
 //display custom fields content
 function bbp_display_custom_fields(){
-	$topic_id = bbp_get_topic_id();
-	$value1 = get_post_meta( $topic_id, 'bbp_extra_field1', true);
-	echo 'Field 1: ' . $value1 . '<br>';
+	if( is_our_forum() == 'true' ){
+		$topic_id = bbp_get_topic_id();
+		$value1 = get_post_meta( $topic_id, 'bbp_extra_field1', true);
+		echo 'Field 1: ' . $value1 . '<br>';
+	}
 }
 add_action( 'bbp_template_before_replies_loop', 'bbp_display_custom_fields' );
 
