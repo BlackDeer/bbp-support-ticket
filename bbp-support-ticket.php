@@ -29,10 +29,10 @@
 *
 */
 
-//if it is support ticket forum
+//if forum is support ticket forum
 function is_our_forum(){
 	global $post;
-	$our_forum = 'support-tickets';
+    $our_forum = 'support-tickets';
 	if( $post->post_type == 'forum' && $post->post_name == $our_forum ){
 		return 'true';
 	}else{
@@ -40,32 +40,53 @@ function is_our_forum(){
 	}
 }
 
+//if topic parent is support ticket forum
+function is_our_topic(){
+    global $wpdb;
+    $our_forum_id = $wpdb->get_var("
+        SELECT ID
+        FROM $wpdb->posts
+        WHERE post_type = 'forum'
+        AND post_name = 'support-tickets'
+    ");
+    global $post;
+    if( $post->post_parent == $our_forum_id ){
+        return 'true';
+    }else{
+        return 'false';
+    }
+}
+
 //display custom field form
 function bbp_custom_fields() {
 	if( is_our_forum() == 'true' ){
-		$value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_field1', true );
-		echo '<label for="bbp_extra_field1">Extra Field 1</label><br>';
-		echo '<input type="text" name="bbp_extra_field1" value="' . $value . '">';
+    include plugin_dir_path(__FILE__) . 'inc/form.php';
 	}
 }
 add_action( 'bbp_theme_before_topic_form_content', 'bbp_custom_fields' );
 
 //process and save
 function bbp_save_custom_fields( $topic_id = 0 ){
-	if( isset( $_POST ) && $_POST[ 'bbp_extra_field1' ] != '' ){
-		update_post_meta( $topic_id, 'bbp_extra_field1', $_POST[ 'bbp_extra_field1' ] );
+    if( isset( $_POST ) && $_POST[ 'bbp_extra_field1' ] != '' ){
+        update_post_meta( $topic_id, 'bbp_extra_field1', $_POST[ 'bbp_extra_field1' ] );
+    }
+	if( isset( $_POST ) && $_POST[ 'department' ] != '' ){
+		update_post_meta( $topic_id, 'department', $_POST[ 'department' ] );
 	}
 }
 add_action( 'bbp_new_topic', 'bbp_save_custom_fields', 10, 1 ); //
 add_action( 'bbp_edit_topic', 'bbp_save_custom_fields', 10, 1 );
 
-//display custom fields content
-//is our forum does not work, need to match parent id to our forum
+//display custom fields content in topic
 function bbp_display_custom_fields(){
-	if( is_our_forum() == 'true' ){
+	if( is_our_topic() == 'true' ){
 		$topic_id = bbp_get_topic_id();
-		$value1 = get_post_meta( $topic_id, 'bbp_extra_field1', true);
-		echo 'Field 1: ' . $value1 . '<br>';
+        
+        $value1 = get_post_meta( $topic_id, 'bbp_extra_field1', true);
+        echo 'Field 1: ' . $value1 . '<br>';
+
+		$department = get_post_meta( $topic_id, 'department', true);
+		echo 'Department: ' . $department . '<br>';
 	}
 }
 add_action( 'bbp_template_before_replies_loop', 'bbp_display_custom_fields' );
